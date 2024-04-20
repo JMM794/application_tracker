@@ -14,7 +14,7 @@ class JobApplicationTracker:
         self.root.title("Job Application Tracker")
         
         # Create DataFrame to store job applications
-        self.df = pd.DataFrame(columns=["Company", "Website", "Date Applied", "Interview Scheduled", "Interview Date", "Job Description"])
+        self.df = pd.DataFrame(columns=["Company", "Website", "Date Applied", "Interview Scheduled", "Interview Date", "Job Title"])
         
         # Create GUI elements
         self.company_label = ttk.Label(root, text="Company:")
@@ -29,9 +29,9 @@ class JobApplicationTracker:
         self.date_label = ttk.Label(root, text="Date Applied:")
         self.date_entry = DateEntry(root, width=12, background='darkblue', foreground='white', borderwidth=2)
         
-        self.description_label = ttk.Label(root, text="Job Description: ")
+        self.description_label = ttk.Label(root, text="Job Title: ")
         self.description_entry = ttk.Entry(root)
-        self.browse_button = ttk.Button(root, text="Browse", command=self.browse_file)
+        #self.browse_button = ttk.Button(root, text="Browse", command=self.browse_file)
 
         self.interview_var = tk.BooleanVar()
         self.interview_checkbutton = ttk.Checkbutton(root, text="Interview Scheduled", variable=self.interview_var)
@@ -57,7 +57,7 @@ class JobApplicationTracker:
         
         self.description_label.grid(row=3, column=0,padx=5, pady=5, sticky="e")
         self.description_entry.grid(row=3, column=1, padx=5, pady=5)
-        self.browse_button.grid(row=3, column=2, padx=5, pady=5)
+        #self.browse_button.grid(row=3, column=2, padx=5, pady=5)
         self.interview_checkbutton.grid(row=4, column=0, columnspan=2, padx=5, pady=5, sticky="w")
         
         self.interview_date_label.grid(row=5, column=0, padx=5, pady=5, sticky="e")
@@ -80,12 +80,12 @@ class JobApplicationTracker:
     def add_application(self):
         company = self.company_entry.get()
         website = ""
-        if self.interview_var.get():
-            if self.website_entry_linkedin.instate(['selected']):
-                website += "LinkedIn"
-            if self.website_entry_indeed.instate(['selected']):
-                website += ", Indeed"
-            website = website.rstrip(", ")
+        #if self.interview_var.get():
+        if self.website_entry_linkedin.instate(['selected']):
+            website += "LinkedIn"
+        if self.website_entry_indeed.instate(['selected']):
+            website += ", Indeed"
+        website = website.rstrip(", ")
         date_applied = self.date_entry.get()
         interview_scheduled = self.interview_var.get()
         description = self.description_entry.get()        
@@ -105,7 +105,12 @@ class JobApplicationTracker:
     def export_to_excel(self):
         try:
             file_name = "job_applications.xlsx"
-            self.df.to_excel(file_name, index=False)
+            try:
+                existing_df = pd.read_excel(file_name)
+                combined_df = pd.concat([existing_df, self.df], ignore_index=True)
+            except FileNotFoundError:
+                combined_df = self.df
+            combined_df.to_excel(file_name, index=False)
             print(f"Data exported to {file_name}")
             messagebox.showinfo("Export Successful", f"Data exported to {file_name}")
         except Exception as e:
